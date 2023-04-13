@@ -15,13 +15,13 @@ public class VoipApp {
         runner = new VoipRunner(sender,receiver,role);
         runner.start();
     }
-    private class VoipRunnner implements Runnable {
+    private class VoipRunner implements Runnable {
         private Thread t;
         private String role;
         VoipSender sender;
         VoipReceiver receiver;
 
-        public VoipRunnner(VoipSender sender,VoipReceiver receiver,String role) {
+        public VoipRunner(VoipSender sender,VoipReceiver receiver,String role) {
             this.sender = sender;
             this.receiver = receiver;
             this.role = role;
@@ -31,7 +31,7 @@ public class VoipApp {
             switch(this.role) {
                 case "receiver":
                     this.receiver.start();
-                    while (True) {
+                    while (!this.sender.inCall) {
                         //keep on trying to send.
                         this.sender.start();
                     }
@@ -58,6 +58,6 @@ public class VoipApp {
 
         VoipSender sender = new VoipSender(address, port);
         VoipReceiver receiver = new VoipReceiver(port);
-        VoipApp app = new  VoipApp(sender, receiver, address, port);       
+        VoipApp app = new  VoipApp(sender, receiver, address, port,role);       
     }
 }
