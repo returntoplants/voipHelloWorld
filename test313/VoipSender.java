@@ -14,6 +14,8 @@ public class VoipSender implements Runnable {
     private AudioFormat format;
     private int destPort;
     private Thread t;
+    public boolean inCall;
+
     public VoipSender(String receiverAddress,int port) {
         try {
             //the datagram socket.
@@ -26,7 +28,7 @@ public class VoipSender implements Runnable {
             format = new AudioFormat(8000.0f, 16, 1, true, true);
             
             destPort = port;  // the port.
-
+            inCall   = false;
         }
         catch (IOException io) {
             System.out.println(io);
@@ -37,6 +39,7 @@ public class VoipSender implements Runnable {
     public void call() throws IOException {
         try {
             System.out.println("awe");
+            this.inCall = true;
             // the microphone input stream.
             TargetDataLine microphone = AudioSystem.getTargetDataLine(format);
 
