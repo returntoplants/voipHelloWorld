@@ -1,35 +1,64 @@
 import java.net.*;
+
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.TargetDataLine;
+
 import java.io.*;
-import javax.sound.sampled.*;
 
-public class VoipSender  {
-    public static void main(String[] args){
+// the voip sender
+public class VoipSender {
+    private DatagramSocket socket;
+    private InetAddress dest;
+    private AudioFormat format;
+    private int destPort;
+
+    public VoipSender(String receiverAddress,int port) {
         try {
-            // Create a socket and connect to the server
-            Socket socket = new Socket("127.0.0.1", 4999);
+            //the datagram socket.
+            socket = new DatagramSocket();
 
-            // Get the output stream from the socket
-            OutputStream outputStream = socket.getOutputStream();
+            // destination addresss.
+            dest   = InetAddress.getByName(receiverAddress); 
 
-            // Set up the audio format
-            AudioFormat format = new AudioFormat(8000, 16, 1, true, true);
+            //the audio format for the audio data.
+            format = new AudioFormat(8000.0f, 16, 1, true, true);
+            
+            destPort = port;  // the port.
 
-            // Get a target data line for capturing audio
-            TargetDataLine microphone = AudioSystem.getTargetDataLine(format);
-            microphone.open(format);
-            microphone.start();
-
-            // Create a buffer for reading audio data
-            byte[] buffer = new byte[1024];
-
-            // Read audio data from the microphone and send it to the server
-            while (true) {
-                int bytesRead = microphone.read(buffer, 0, buffer.length);
-                outputStream.write(buffer, 0, bytesRead);
-                outputStream.flush();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
+        catch (IOException io) {
+            sysSystem.out.println(io);
+            io.printStackTrace();
+        }
+    }
+
+    public void call() throws IOException {
+        // the microphone input stream.
+        TargetDataLine microphone = AudioSystem.getTargetDataLine(format);
+
+        //the microphone.
+        microphone.open(format);
+        microphone.start();
+
+        //create a buffer to hold the audio data.
+        byte[] buffer = new byte[1024];
+
+        // Continuouslty read audio data from the microphone and send it over UDP
+        while (true) {
+            int count = microphone.read(buffer,0,buffer.length);
+
+            // the datagram packet.
+            Datagram packet = new DatagramPacket(buffer,count,dest,destPort);
+
+            socket.send(packet);   // send the data packet over the socket.
+        }
+
+    }
+
+    public static void main(String[] args) {
+        String receiverAddr = args[0];
+        int port = Integer.parseInt(args[1]);
+        VoipSender send = new VoipSender(receiverAddress, port); 
     }
 }
