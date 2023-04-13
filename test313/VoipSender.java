@@ -8,12 +8,12 @@ import javax.sound.sampled.TargetDataLine;
 import java.io.*;
 
 // the voip sender
-public class VoipSender {
+public class VoipSender implements Runnable {
     private DatagramSocket socket;
     private InetAddress dest;
     private AudioFormat format;
     private int destPort;
-
+    private Thread t;
     public VoipSender(String receiverAddress,int port) {
         try {
             //the datagram socket.
@@ -36,6 +36,7 @@ public class VoipSender {
 
     public void call() throws IOException {
         try {
+            System.out.println("awe");
             // the microphone input stream.
             TargetDataLine microphone = AudioSystem.getTargetDataLine(format);
 
@@ -61,6 +62,26 @@ public class VoipSender {
             lu.printStackTrace();
         }
     }
+
+
+    public void run() {
+        try {
+            this.call();
+        }
+        catch (IOException io) {
+            System.out.println(" io exceptions ",io);
+            io.printStackTrace();
+        }
+    }
+    
+    public void start() {
+        if (t == null) {
+            t = new Thread(this,"sender");
+
+            t.start();
+        }
+    }
+    
 
     public static void main(String[] args) {
         String receiverAddr = args[0];
