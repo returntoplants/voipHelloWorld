@@ -5,8 +5,8 @@ public class VoipApp {
     public VoipSender sender;
     public VoipReceiver receiver;
 
-    public VoipApp(VoipSender sender,VoipReceiver receiver,String addresss,int port) {
-        this.sender = new VoipSender(receiverAddress,port);
+    public VoipApp(VoipSender sender,VoipReceiver receiver,String address,int port) {
+        this.sender = new VoipSender(address,port);
         this.receiver = new VoipReceiver(port);
         
         this.sender.start();
