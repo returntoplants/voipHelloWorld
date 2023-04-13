@@ -18,6 +18,6 @@ public class VoipApp {
         int port       = Integer.parseInt(args[1]);
         VoipSender sender = new VoipSender(address, port);
         VoipReceiver receiver = new VoipReceiver(port);
-        VoipApp app = new  VoipApp(sender, receiver, addresss, port);       
+        VoipApp app = new  VoipApp(sender, receiver, address, port);       
     }
 }
