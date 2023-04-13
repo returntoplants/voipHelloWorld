@@ -63,7 +63,7 @@ public class VoipReceiver implements Runnable {
 		e.printStackTrace();
 		}
 	}
-	public void srart() {
+	public void start() {
 		if (t == null) {
 			t = new Thread(this, "receiver");
 			t.start();
