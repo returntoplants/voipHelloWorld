@@ -7,17 +7,16 @@ import javax.sound.sampled.AudioFormat;
 
 import java.io.*;
 
-public class VoipReceiver {
-    private DatagramSocket socket; 
+public class VoipReceiver implements Runnable {
+    private Thread t;
+	private DatagramSocket socket; 
     private AudioFormat format;
-
     public VoipReceiver(int port) {
         try {
             format = new AudioFormat(8000.0f,16,1,true,true);
 
             socket = new DatagramSocket(port); 
 
-            this.receive();
         }
         catch(IOException io) {
             System.out.println(io);
@@ -29,6 +28,7 @@ public class VoipReceiver {
         try {
             SourceDataLine speakers = AudioSystem.getSourceDataLine(format);
 
+	System.out.println("awe");
             speakers.open(format);
             speakers.start();
 
@@ -50,8 +50,25 @@ public class VoipReceiver {
 
     public static void main(String[] args) {
         int port = Integer.parseInt(args[0]);
-
+		
         // receiver the file file data
         VoipReceiver receiver = new VoipReceiver(port);
     }
+	public void run () {
+		try {
+
+		this.receive();
+		} catch(IOException e) {
+		System.out.println("awe");
+		e.printStackTrace();
+		}
+	}
+	public void srart() {
+		if (t == null) {
+			t = new Thread(this, "receiver");
+			t.start();
+		} 
+		
+	}
+
 }
