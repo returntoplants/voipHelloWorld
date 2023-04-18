@@ -55,10 +55,7 @@ public class VoipSender implements Runnable {
                 int count = microphone.read(buffer,0,buffer.length);
 
                 // the datagram packet.
-               byte[] processedBuffer = applyEchoCancellation(buffer, count);
-
-            // the datagram packet.
-            DatagramPacket packet = new DatagramPacket(processedBuffer,count,dest,destPort);
+                DatagramPacket packet = new DatagramPacket(buffer,count,dest,destPort);
 
                 socket.send(packet);   // send the data packet over the socket.
             }
@@ -101,24 +98,4 @@ public class VoipSender implements Runnable {
             io.printStackTrace();
         }
     }
-
-    private byte[] applyEchoCancellation(byte[] buffer, int count) {
-    // Implement your own echo cancellation logic here
-    // For example, you can subtract a delayed version of the input buffer to cancel echo
-
-    // Delay in samples (you can adjust this value based on your specific use case)
-    int delay = 100;
-
-    // Buffer to hold the output after echo cancellation
-    byte[] outputBuffer = new byte[count];
-
-    for (int i = 0; i < count; i++) {
-        // Subtract delayed version of the input buffer to cancel echo
-        byte delayedSample = (i - delay >= 0) ? buffer[i - delay] : 0;
-        outputBuffer[i] = (byte) (buffer[i] - delayedSample);
-    }
-
-    return outputBuffer;
-}
-
 }

@@ -37,14 +37,9 @@ public class VoipReceiver implements Runnable {
             // Continuously receive audio data over UDP and play it back on the
             // speakers.
             while (true) {
-                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-            socket.receive(packet);
-
-            // apply echo cancellation to the received audio data
-            byte[] processedBuffer = applyEchoCancellation(packet.getData(), packet.getLength());
-
-            // play the audio data
-            speakers.write(processedBuffer, 0, processedBuffer.length);
+                DatagramPacket packet = new DatagramPacket(buffer,buffer.length);
+                socket.receive(packet);
+                speakers.write(packet.getData(),0,packet.getLength());
             }
         }
         catch (LineUnavailableException lu) {
@@ -75,25 +70,5 @@ public class VoipReceiver implements Runnable {
 		} 
 		
 	}
-
-    private byte[] applyEchoCancellation(byte[] buffer, int count) {
-    // Implement your own echo cancellation logic here
-    // For example, you can subtract a delayed version of the input buffer to cancel echo
-
-    // Delay in samples (you can adjust this value based on your specific use case)
-    int delay = 100;
-
-    // Buffer to hold the output after echo cancellation
-    byte[] outputBuffer = new byte[count];
-
-    for (int i = 0; i < count; i++) {
-        // Subtract delayed version of the input buffer to cancel echo
-        byte delayedSample = (i - delay >= 0) ? buffer[i - delay] : 0;
-        outputBuffer[i] = (byte) (buffer[i] - delayedSample);
-    }
-
-    return outputBuffer;
-}
-
 
 }
