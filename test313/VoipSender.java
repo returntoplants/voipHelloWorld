@@ -4,8 +4,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.TargetDataLine;
-import org.webrtc.AudioProcessing;
-import org.webrtc.AudioProcessingFactory;
+
 import java.io.*;
 
 // the voip sender
@@ -16,14 +15,9 @@ public class VoipSender implements Runnable {
     private int destPort;
     private Thread t;
     public boolean inCall;
-    
 
     public VoipSender(String receiverAddress,int port) {
         try {
-            AudioProcessingFactory audioProcessingFactory = new AudioProcessingFactory();
-AudioProcessing audioProcessing = audioProcessingFactory.createAudioProcessing();
-// Enable Echo Cancellation
-audioProcessing.setEchoCancellation(true);
             //the datagram socket.
             socket = new DatagramSocket();
 
@@ -59,12 +53,12 @@ audioProcessing.setEchoCancellation(true);
             // Continuouslty read audio data from the microphone and send it over UDP
             while (true) {
                 int count = microphone.read(buffer,0,buffer.length);
-                // Process audio data using audio processing
-                byte[] processedBuffer = new byte[count];
-                audioProcessing.process(buffer, count, format.getSampleRate(), processedBuffer);
 
                 // the datagram packet.
-                DatagramPacket packet = new DatagramPacket(buffer,count,dest,destPort);
+               byte[] processedBuffer = applyEchoCancellation(buffer, count);
+
+            // the datagram packet.
+            DatagramPacket packet = new DatagramPacket(processedBuffer,count,dest,destPort);
 
                 socket.send(packet);   // send the data packet over the socket.
             }
@@ -107,4 +101,24 @@ audioProcessing.setEchoCancellation(true);
             io.printStackTrace();
         }
     }
+
+    private byte[] applyEchoCancellation(byte[] buffer, int count) {
+    // Implement your own echo cancellation logic here
+    // For example, you can subtract a delayed version of the input buffer to cancel echo
+
+    // Delay in samples (you can adjust this value based on your specific use case)
+    int delay = 100;
+
+    // Buffer to hold the output after echo cancellation
+    byte[] outputBuffer = new byte[count];
+
+    for (int i = 0; i < count; i++) {
+        // Subtract delayed version of the input buffer to cancel echo
+        byte delayedSample = (i - delay >= 0) ? buffer[i - delay] : 0;
+        outputBuffer[i] = (byte) (buffer[i] - delayedSample);
+    }
+
+    return outputBuffer;
+}
+
 }

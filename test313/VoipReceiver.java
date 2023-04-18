@@ -4,10 +4,6 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.AudioFormat;
-import org.webrtc.AudioProcessing;
-import org.webrtc.AudioProcessingFactory;
-import org.webrtc.PeerConnectionFactory;
-import org.webrtc.PeerConnectionFactory.InitializationOptions;
 
 import java.io.*;
 
@@ -15,21 +11,9 @@ public class VoipReceiver implements Runnable {
     private Thread t;
 	private DatagramSocket socket; 
     private AudioFormat format;
-    private AudioProcessingFactory audioProcessingFactory;
-    private AudioProcessing audioProcessing;
     public VoipReceiver(int port) {
         try {
             format = new AudioFormat(8000.0f,16,1,true,true);
-
-             InitializationOptions initializationOptions =
-                InitializationOptions.builder(format).createInitializationOptions();
-            PeerConnectionFactory.initialize(initializationOptions);
-            // Create an instance of AudioProcessing
-            AudioProcessingFactory audioProcessingFactory = new AudioProcessingFactory();
-             audioProcessing = audioProcessingFactory.createAudioProcessing();
-            // Enable Echo Cancellation
-            audioProcessing.setEchoCancellation(true);
-            
 
             socket = new DatagramSocket(port); 
 
@@ -44,10 +28,7 @@ public class VoipReceiver implements Runnable {
         try {
             SourceDataLine speakers = AudioSystem.getSourceDataLine(format);
 
-<<<<<<< HEAD
-=======
-        	System.out.println("awes");
->>>>>>> 667317fabda74fee3f2a90bd7aaf599da430917a
+	System.out.println("awe");
             speakers.open(format);
             speakers.start();
 
@@ -56,11 +37,14 @@ public class VoipReceiver implements Runnable {
             // Continuously receive audio data over UDP and play it back on the
             // speakers.
             while (true) {
-                DatagramPacket packet = new DatagramPacket(buffer,buffer.length);
-                socket.receive(packet);
-                byte[] processedBuffer = new byte[packet.getLength()];
-                audioProcessing.process(packet.getData(), packet.getLength(), format.getSampleRate(), processedBuffer);
-                speakers.write(packet.getData(),0,packet.getLength());
+                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+            socket.receive(packet);
+
+            // apply echo cancellation to the received audio data
+            byte[] processedBuffer = applyEchoCancellation(packet.getData(), packet.getLength());
+
+            // play the audio data
+            speakers.write(processedBuffer, 0, processedBuffer.length);
             }
         }
         catch (LineUnavailableException lu) {
@@ -91,5 +75,25 @@ public class VoipReceiver implements Runnable {
 		} 
 		
 	}
+
+    private byte[] applyEchoCancellation(byte[] buffer, int count) {
+    // Implement your own echo cancellation logic here
+    // For example, you can subtract a delayed version of the input buffer to cancel echo
+
+    // Delay in samples (you can adjust this value based on your specific use case)
+    int delay = 100;
+
+    // Buffer to hold the output after echo cancellation
+    byte[] outputBuffer = new byte[count];
+
+    for (int i = 0; i < count; i++) {
+        // Subtract delayed version of the input buffer to cancel echo
+        byte delayedSample = (i - delay >= 0) ? buffer[i - delay] : 0;
+        outputBuffer[i] = (byte) (buffer[i] - delayedSample);
+    }
+
+    return outputBuffer;
+}
+
 
 }
