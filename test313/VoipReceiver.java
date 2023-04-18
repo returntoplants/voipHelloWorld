@@ -28,7 +28,7 @@ public class VoipReceiver implements Runnable {
         try {
             SourceDataLine speakers = AudioSystem.getSourceDataLine(format);
 
-	System.out.println("awe");
+        	System.out.println("awes");
             speakers.open(format);
             speakers.start();
 
