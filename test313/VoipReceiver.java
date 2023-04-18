@@ -44,6 +44,10 @@ public class VoipReceiver implements Runnable {
         try {
             SourceDataLine speakers = AudioSystem.getSourceDataLine(format);
 
+<<<<<<< HEAD
+=======
+        	System.out.println("awes");
+>>>>>>> 667317fabda74fee3f2a90bd7aaf599da430917a
             speakers.open(format);
             speakers.start();
 
