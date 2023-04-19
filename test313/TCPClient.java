@@ -16,8 +16,9 @@ class TCPClient implements Runnable {
             this.voip         = voip;
             this.clientSocket = new Socket(serverAddress,port);
             this.myAddress    = myAddress;
-            this.input  = new ObjectInputStream(this.clientSocket.getInputStream());
             this.output = new ObjectOutputStream(this.clientSocket.getOutputStream());
+            this.input  = new ObjectInputStream(this.clientSocket.getInputStream());
+            System.out.println("client has been constructed!!");
         }
         catch(IOException io) {
             System.out.println(io);
@@ -27,6 +28,7 @@ class TCPClient implements Runnable {
 
     public void run() {
         try {
+            System.out.println("start of run.");
             this.output.writeUTF("new");
             this.output.flush();
             this.output.writeUTF(this.myAddress);

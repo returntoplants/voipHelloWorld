@@ -23,8 +23,11 @@ public class VoipApp {
                 break;
             case "sender":
             case "other":
+                System.out.println("client being created.");
                 TCPClient client = new TCPClient(this,myAddress,receiver,port+10);
+                System.out.println("client created (1)");
                 client.start();
+                System.out.println("client created.");
                 break;
         }
         }
@@ -32,6 +35,7 @@ public class VoipApp {
             System.out.println(io);
             io.printStackTrace();
         }
+        System.out.println("awes!!");
         runner = new VoipRunner(sender,this.receiver,role);
         System.out.println(" running!!! ");
         runner.start();
