@@ -53,7 +53,7 @@ public class VoipSender implements Runnable {
             // Continuouslty read audio data from the microphone and send it over UDP
             while (true) {
                 //create a buffer to hold the audio data.
-                byte[] buffer = new byte[1024];
+                byte[] buffer = new byte[8*1024];
 
                 microphone.read(buffer,0,buffer.length);
                 // the datagram packet.
