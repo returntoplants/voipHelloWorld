@@ -30,10 +30,6 @@ class TCPClient implements Runnable {
             this.output.writeUTF("new");
             this.output.flush();
             this.output.writeUTF(this.myAddress);
-
-            while (this.clientSocket.isConnected()) {
-                
-            }
         }
         catch(IOException io) {
             System.out.println(io);

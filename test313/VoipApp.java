@@ -33,7 +33,9 @@ public class VoipApp {
             io.printStackTrace();
         }
         runner = new VoipRunner(sender,this.receiver,role);
+        System.out.println(" running!!! ");
         runner.start();
+
     }
 
     public void addAddress(String address) {
@@ -61,6 +63,7 @@ public class VoipApp {
                         this.sender.start();
                     }
                     break;
+                case "other":
                 case "sender":
                     this.sender.start();
                     this.receiver.start();
