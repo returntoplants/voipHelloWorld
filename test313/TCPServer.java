@@ -82,6 +82,7 @@ class TCPServer implements Runnable {
                         case "new":
                             //read in the clients new address.
                             String address = this.input.readUTF();
+                            System.out.println("address: "+address);
                             this.voip.addAddress(address);  //add the new callers address to
                                                         // the list of addresses audio is sent to.
                             
