@@ -49,17 +49,34 @@ public class VoipSender implements Runnable {
             microphone.open(format);
             microphone.start();
 
-            //create a buffer to hold the audio data.
-            byte[] buffer = new byte[1024];
 
             // Continuouslty read audio data from the microphone and send it over UDP
             while (true) {
-                int count = microphone.read(buffer,0,buffer.length);
+                //create a buffer to hold the audio data.
+                byte[] buffer = new byte[8*1024];
 
+                microphone.read(buffer,0,buffer.length);
                 // the datagram packet.
-                for (InetAddress dest : this.destinations) {
-                    DatagramPacket packet = new DatagramPacket(buffer,count,dest,destPort);
-                    socket.send(packet);   // send the data packet over the socket.
+                if (this.getDestinations().size() > 1) {
+                    Arrays.stream(this.getDestinations().toArray())
+                        .parallel()
+                        .forEach(
+                                dest -> {
+                                    try {
+                                        InetAddress d = (InetAddress)dest;
+                                        DatagramPacket packet = new DatagramPacket(buffer,buffer.length,d,destPort);
+                                        socket.send(packet);
+                                    }
+                                    catch(IOException io) {
+                                        System.out.println("errs : "+io);
+                                    }
+                            }
+                        );
+                }
+                else {
+                    InetAddress dest = this.getDestinations().get(0);
+                    DatagramPacket packet = new DatagramPacket(buffer,buffer.length,dest,destPort);
+                    socket.send(packet);
                 }
             }
         }

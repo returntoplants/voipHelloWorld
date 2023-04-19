@@ -32,7 +32,7 @@ public class VoipReceiver implements Runnable {
             speakers.open(format);
             speakers.start();
 
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[8*1024];
 
             // Continuously receive audio data over UDP and play it back on the
             // speakers.
