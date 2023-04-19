@@ -6,11 +6,12 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.TargetDataLine;
 
 import java.io.*;
+import java.util.*;
 
 // the voip sender
 public class VoipSender implements Runnable {
     private DatagramSocket socket;
-    private InetAddress dest;
+    private ArrayList<InetAddress> destinations;
     private AudioFormat format;
     private int destPort;
     private Thread t;
@@ -21,8 +22,9 @@ public class VoipSender implements Runnable {
             //the datagram socket.
             socket = new DatagramSocket();
 
+            this.destinations = new ArrayList<InetAddress>();
             // destination addresss.
-            dest   = InetAddress.getByName(receiverAddress); 
+            this.destinations.add(InetAddress.getByName(receiverAddress)); 
 
             //the audio format for the audio data.
             format = new AudioFormat(8000.0f, 16, 1, true, true);
@@ -55,9 +57,10 @@ public class VoipSender implements Runnable {
                 int count = microphone.read(buffer,0,buffer.length);
 
                 // the datagram packet.
-                DatagramPacket packet = new DatagramPacket(buffer,count,dest,destPort);
-
-                socket.send(packet);   // send the data packet over the socket.
+                for (InetAddress dest : this.destinations) {
+                    DatagramPacket packet = new DatagramPacket(buffer,count,dest,destPort);
+                    socket.send(packet);   // send the data packet over the socket.
+                }
             }
         }
         catch (LineUnavailableException lu) {
@@ -66,6 +69,20 @@ public class VoipSender implements Runnable {
         }
     }
 
+
+    public ArrayList<InetAddress> getDestinations() {
+        return this.destinations;
+    }
+
+    public void addDestination(String dest) {
+        try {
+            this.destinations.add(InetAddress.getByName(dest));
+        }
+        catch(UnknownHostException noKnown) {
+            System.out.println(noKnown);
+            noKnown.printStackTrace();
+        }
+    }
 
     public void run() {
         try {
@@ -80,7 +97,6 @@ public class VoipSender implements Runnable {
     public void start() {
         if (t == null) {
             t = new Thread(this,"sender");
-
             t.start();
         }
     }
