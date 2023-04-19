@@ -59,8 +59,8 @@ class TCPServer implements Runnable {
                 this.tcpServer    = server;
                 this.voip         = voip;
                 this.clientSocket = clientSocket;
-                this.input        = new ObjectInputStream(clientSocket.getInputStream());
                 this.output       = new ObjectOutputStream(clientSocket.getOutputStream());
+                this.input        = new ObjectInputStream(clientSocket.getInputStream());
             }
             catch(IOException io) {
                 System.out.println("error: "+io);
