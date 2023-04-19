@@ -19,6 +19,7 @@ class TCPServer implements Runnable {
         try {
             while (true) {
                 Socket clientSocket = this.tcpServerSocket.accept();
+                System.out.println("connected!");
                 TCPThread tcpThread = new TCPThread(this,this.voip,clientSocket);
                 this.threads.add(tcpThread);
                 tcpThread.start();
