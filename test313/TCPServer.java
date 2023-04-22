@@ -39,11 +39,14 @@ class TCPServer implements Runnable {
         }
     }
 
-    public void newCallee(String address) {
+    public void newClient(String address,int port) {
         for (TCPThread th: this.threads) {
             th.addDestination(address);
+            th.newReceiver(port);
         }
     }
+
+
 
     private class TCPThread implements Runnable {
         private Socket clientSocket;
@@ -68,6 +71,10 @@ class TCPServer implements Runnable {
             }
         }
 
+        public void newReceiver(String address,int port) {
+            this.voip.newReceiver(address,port);
+        }
+
         public void addDestination(String dest) { 
             if (!this.myAddress.equals(dest)) {
                 this.voip.addAddress(dest);
@@ -83,11 +90,18 @@ class TCPServer implements Runnable {
                             //read in the clients new address.
                             String address = this.input.readUTF();
                             System.out.println("address: "+address);
-                            this.voip.addAddress(address);  //add the new callers address to
-                                                        // the list of addresses audio is sent to.
-                            
-                            this.myAddress = address;
-                            this.tcpServer.newCallee(address);
+                           
+                            int n = this.tcpServer.threads.size();
+        
+                            //write out the number of callers on the call
+                            this.output.writeInt(n);
+                            this.output.flush();
+
+                            //read in the port number
+                            int port = this.input.readInt();
+
+                            //new receiver.
+                            this.tcpServer.newReceiver(address,port);
                             break;
                         case "":
                             break;

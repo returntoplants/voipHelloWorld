@@ -5,45 +5,24 @@ import java.util.*;
 public class VoipApp {
     public static String RECEIVER = "receiver";
     public static String SENDER   = "sender";
-    public ArrayList<String> receiverAddresses;
+
+
     public Socket tcpSocket;
     public VoipSender sender;
     public VoipReceiver receiver;
     public VoipRunner runner;
 
-    public VoipApp(String receiver,String myAddress,int port,String role) {
-        this.receiver = new VoipReceiver(port);
-        this.sender = new VoipSender(receiver,port);
-        try { 
-        switch(role) {
-            case "receiver":
-                ServerSocket tcpServerSocket = new ServerSocket(port+10);
-                TCPServer tcp = new TCPServer(this,tcpServerSocket); 
-                tcp.start();
-                break;
-            case "sender":
-            case "other":
-                System.out.println("client being created.");
-                TCPClient client = new TCPClient(this,myAddress,receiver,port+10);
-                System.out.println("client created (1)");
-                client.start();
-                System.out.println("client created.");
-                break;
+    public VoipApp(String receiver,String myAddress,int port,String role,String call) {
+        this.receiver = new VoipReceiver(port,call,myAddress);
+        if (call.equals("group")) {
+            this.sender = new VoipSender("224.0.0.0/4",port);
         }
+        else {
+            this.sender = new VoipSender(receiver,port);
         }
-        catch(IOException io) {
-            System.out.println(io);
-            io.printStackTrace();
-        }
-        System.out.println("awes!!");
+
         runner = new VoipRunner(sender,this.receiver,role);
-        System.out.println(" running!!! ");
         runner.start();
-
-    }
-
-    public void addAddress(String address) {
-        this.sender.addDestination(address);
     }
    
     private class VoipRunner implements Runnable {
@@ -56,7 +35,7 @@ public class VoipApp {
             this.sender = sender;
             this.receiver = receiver;
             this.role = role;
-        }
+      }
 
         public void run() {
             switch(this.role) {
@@ -85,9 +64,10 @@ public class VoipApp {
 
     public static void main(String[] args) {
         String receiverAddr = args[0];
-        String address = args[1];
+        String myAddress    = args[1];
         int port       = Integer.parseInt(args[2]);
         String role    = args[3];
-        VoipApp app = new  VoipApp(receiverAddr, address, port,role);       
+        String call    = args[4];
+        VoipApp app = new  VoipApp(receiverAddr,myAddress,port,role,call);       
     }
 }

@@ -11,8 +11,8 @@ import java.util.*;
 // the voip sender
 public class VoipSender implements Runnable {
     private DatagramSocket socket;
-    private ArrayList<InetAddress> destinations;
     private AudioFormat format;
+    private InetAddress rcvAddr;
     private int destPort;
     private Thread t;
     public boolean inCall;
@@ -22,9 +22,7 @@ public class VoipSender implements Runnable {
             //the datagram socket.
             socket = new DatagramSocket();
 
-            this.destinations = new ArrayList<InetAddress>();
-            // destination addresss.
-            this.destinations.add(InetAddress.getByName(receiverAddress)); 
+            this.rcvAddr = InetAddress.getByName(receiverAddress);
 
             //the audio format for the audio data.
             format = new AudioFormat(8000.0f, 16, 1, true, true);
@@ -54,30 +52,10 @@ public class VoipSender implements Runnable {
             while (true) {
                 //create a buffer to hold the audio data.
                 byte[] buffer = new byte[8*1024];
-
                 microphone.read(buffer,0,buffer.length);
                 // the datagram packet.
-                if (this.getDestinations().size() > 1) {
-                    Arrays.stream(this.getDestinations().toArray())
-                        .parallel()
-                        .forEach(
-                                dest -> {
-                                    try {
-                                        InetAddress d = (InetAddress)dest;
-                                        DatagramPacket packet = new DatagramPacket(buffer,buffer.length,d,destPort);
-                                        socket.send(packet);
-                                    }
-                                    catch(IOException io) {
-                                        System.out.println("errs : "+io);
-                                    }
-                            }
-                        );
-                }
-                else {
-                    InetAddress dest = this.getDestinations().get(0);
-                    DatagramPacket packet = new DatagramPacket(buffer,buffer.length,dest,destPort);
-                    socket.send(packet);
-                }
+                DatagramPacket packet = new DatagramPacket(buffer,buffer.length,this.rcvAddr,destPort);
+                socket.send(packet);
             }
         }
         catch (LineUnavailableException lu) {
@@ -86,20 +64,6 @@ public class VoipSender implements Runnable {
         }
     }
 
-
-    public ArrayList<InetAddress> getDestinations() {
-        return this.destinations;
-    }
-
-    public void addDestination(String dest) {
-        try {
-            this.destinations.add(InetAddress.getByName(dest));
-        }
-        catch(UnknownHostException noKnown) {
-            System.out.println(noKnown);
-            noKnown.printStackTrace();
-        }
-    }
 
     public void run() {
         try {

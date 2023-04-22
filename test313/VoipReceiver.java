@@ -9,13 +9,27 @@ import java.io.*;
 
 public class VoipReceiver implements Runnable {
     private Thread t;
-	private DatagramSocket socket; 
+	private DatagramSocket socket;
+    private String call;
+    private MulticastSocket mSocket;
     private AudioFormat format;
-    public VoipReceiver(int port) {
+    private String myAddress;
+    public VoipReceiver(int port,String call,String myAddress) {
+        String multicastAddr = "224.0.0.0/4";
         try {
             format = new AudioFormat(8000.0f,16,1,true,true);
 
-            socket = new DatagramSocket(port); 
+            switch(call) {
+                case "private":
+                    socket = new DatagramSocket(port);
+                    break;
+                case "group":
+                    mSocket = new MulticastSocket(port);
+                    InetAddress multi = InetAddress.getByName(multicastAddr);
+                    mSocket.joinGroup(multi); 
+                    break;
+            }
+
 
         }
         catch(IOException io) {
@@ -28,7 +42,6 @@ public class VoipReceiver implements Runnable {
         try {
             SourceDataLine speakers = AudioSystem.getSourceDataLine(format);
 
-	System.out.println("awe");
             speakers.open(format);
             speakers.start();
 
@@ -38,7 +51,14 @@ public class VoipReceiver implements Runnable {
             // speakers.
             while (true) {
                 DatagramPacket packet = new DatagramPacket(buffer,buffer.length);
-                socket.receive(packet);
+                switch(call) {
+                    case "group":
+                        mSocket.receive(packet);
+                        break;
+                    default:
+                        socket.receive(packet);
+                        break;
+                }
                 speakers.write(packet.getData(),0,packet.getLength());
             }
         }
@@ -52,15 +72,14 @@ public class VoipReceiver implements Runnable {
         int port = Integer.parseInt(args[0]);
 		
         // receiver the file file data
-        VoipReceiver receiver = new VoipReceiver(port);
+        //VoipReceiver receiver = new VoipReceiver(port);
     }
 	public void run () {
 		try {
-
-		this.receive();
+		    this.receive();
 		} catch(IOException e) {
-		System.out.println("awe");
-		e.printStackTrace();
+		    System.out.println("awe");
+		    e.printStackTrace();
 		}
 	}
 	public void start() {
