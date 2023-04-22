@@ -24,9 +24,16 @@ public class VoipReceiver implements Runnable {
                     socket = new DatagramSocket(port);
                     break;
                 case "group":
+                    socket = new DatagramSocket();
+                    socket.setOption(StandardSocketOptions.IP_MULTICAST_LOOP,true);
+
                     mSocket = new MulticastSocket(port);
                     InetAddress multi = InetAddress.getByName(multicastAddr);
-                    mSocket.joinGroup(multi); 
+                    InetSocketAddress inMulti = new InetSocketAddress(multi,port);
+                    mSocket.setReuseAddress(true);
+
+                    NetworkInterface nintf = NetworkInterface.getByName("zt44xfkmyl");
+                    mSocket.joinGroup(inMulti,nintf); 
                     break;
             }
 
@@ -51,14 +58,16 @@ public class VoipReceiver implements Runnable {
             // speakers.
             while (true) {
                 DatagramPacket packet = new DatagramPacket(buffer,buffer.length);
-                switch(call) {
-                    case "group":
-                        mSocket.receive(packet);
-                        break;
-                    default:
-                        socket.receive(packet);
-                        break;
-                }
+                //switch(call) {
+                //    case "group":
+                //        mSocket.receive(packet);
+                //        break;
+                //    default:
+                //        socket.receive(packet);
+                //        break;
+                //}
+                socket.receive(packet);
+                
                 speakers.write(packet.getData(),0,packet.getLength());
             }
         }
