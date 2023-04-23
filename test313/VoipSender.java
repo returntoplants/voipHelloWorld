@@ -13,17 +13,23 @@ public class VoipSender implements Runnable {
     private DatagramSocket socket;
     private AudioFormat format;
     private InetAddress rcvAddr;
+    private InetSocketAddress groupAddr;
     private int destPort;
     private Thread t;
     public boolean inCall;
+    public String call;
 
-    public VoipSender(String receiverAddress,int port) {
+    public VoipSender(String receiverAddress,int port,String call) {
         try {
             //the datagram socket.
             socket = new DatagramSocket();
-
+            this.call = call;
             this.rcvAddr = InetAddress.getByName(receiverAddress);
-
+            switch(call) {    
+                case "group":
+                    this.groupAddr = new InetSocketAddress(this.rcvAddr,port);
+                    break;
+            }
             //the audio format for the audio data.
             format = new AudioFormat(8000.0f, 16, 1, true, true);
             
@@ -54,8 +60,16 @@ public class VoipSender implements Runnable {
                 byte[] buffer = new byte[8*1024];
                 microphone.read(buffer,0,buffer.length);
                 // the datagram packet.
-                DatagramPacket packet = new DatagramPacket(buffer,buffer.length,this.rcvAddr,destPort);
-                socket.send(packet);
+                switch(this.call) {
+                    case "private":
+                        DatagramPacket packet = new DatagramPacket(buffer,buffer.length,this.rcvAddr,destPort);
+                        socket.send(packet);
+                        break;
+                    case "group":
+                        DatagramPacket gpack = new DatagramPacket(buffer, buffer.length,this.groupAddr);
+                        socket.send(gpack);
+                        break;
+                }
             }
         }
         catch (LineUnavailableException lu) {
@@ -86,13 +100,13 @@ public class VoipSender implements Runnable {
     public static void main(String[] args) {
         String receiverAddr = args[0];
         int port = Integer.parseInt(args[1]);
-        VoipSender send = new VoipSender(receiverAddr, port);
-        try {
-            send.call();    // start the call.
-        }
-        catch(IOException io) {
-            System.out.println(io);
-            io.printStackTrace();
-        }
+        //VoipSender send = new VoipSender(receiverAddr, port);
+        //try {
+        //    send.call();    // start the call.
+        //}
+        //catch(IOException io) {
+         //   System.out.println(io);
+         //   io.printStackTrace();
+        //}
     }
 }
