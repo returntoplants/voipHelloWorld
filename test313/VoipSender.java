@@ -59,6 +59,7 @@ public class VoipSender implements Runnable {
                 //create a buffer to hold the audio data.
                 byte[] buffer = new byte[8*1024];
                 microphone.read(buffer,0,buffer.length);
+
                 // the datagram packet.
                 switch(this.call) {
                     case "private":

@@ -18,7 +18,7 @@ public class VoipReceiver implements Runnable {
         String multicastAddr = "228.0.0.0";
         try {
             format = new AudioFormat(8000.0f,16,1,true,true);
-
+            this.myAddress = myAddress;
             this.call = call;
             switch(call) {
                 case "private":
@@ -61,6 +61,10 @@ public class VoipReceiver implements Runnable {
             // speakers.
             while (true) {
                 DatagramPacket packet = new DatagramPacket(buffer,buffer.length);
+                InetAddress source = packet.getAddress();
+                if (source == null || source.equals(InetAddress.getByName(this.myAddress))) {
+                    continue;
+                }
                 switch(this.call) {
                     case "group":
                         mSocket.receive(packet);
