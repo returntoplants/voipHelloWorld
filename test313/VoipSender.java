@@ -66,7 +66,7 @@ public class VoipSender implements Runnable {
                         socket.send(packet);
                         break;
                     case "group":
-                        DatagramPacket gpack = new DatagramPacket(buffer, buffer.length,this.groupAddr);
+                        DatagramPacket gpack = new DatagramPacket(buffer, buffer.length,this.rcvAddr,destPort);
                         socket.send(gpack);
                         break;
                 }
