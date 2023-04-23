@@ -19,6 +19,7 @@ public class VoipReceiver implements Runnable {
         try {
             format = new AudioFormat(8000.0f,16,1,true,true);
 
+            this.call = call;
             switch(call) {
                 case "private":
                     socket = new DatagramSocket(port);
@@ -60,15 +61,15 @@ public class VoipReceiver implements Runnable {
             // speakers.
             while (true) {
                 DatagramPacket packet = new DatagramPacket(buffer,buffer.length);
-                //switch(call) {
-                //    case "group":
-                //        mSocket.receive(packet);
-                //        break;
-                //    default:
-                //        socket.receive(packet);
-                //        break;
-                //}
-                socket.receive(packet);
+                switch(this.call) {
+                    case "group":
+                        mSocket.receive(packet);
+                        break;
+                    default:
+                        socket.receive(packet);
+                        break;
+                }
+                //socket.receive(packet);
                 
                 speakers.write(packet.getData(),0,packet.getLength());
             }
