@@ -42,7 +42,7 @@ public class VoipSender implements Runnable {
         }
     }
 
-    public void rateOfChange(byte[] array) {
+    public double rateOfChange(byte[] array) {
         double[] audioData = new double[array.length/2];
         for (int i =0,j = 0; i < audioData.length;i += 2,j++) {
             int sample = (array[i+1]<<8) | (array[i]  & 0xff);
@@ -56,6 +56,7 @@ public class VoipSender implements Runnable {
         rms /= audioData.length;
         rms = Math.sqrt(rms);
         System.out.println("standard deviation of sound: "+rms);
+        return rms;
     }
 
     public void call() throws IOException {
@@ -75,7 +76,9 @@ public class VoipSender implements Runnable {
                 //create a buffer to hold the audio data.
                 byte[] buffer = new byte[512];
                 microphone.read(buffer,0,buffer.length);
-                rateOfChange(buffer);
+                double std = rateOfChange(buffer);
+
+                if (std <= 0.4) continue;
                 // the datagram packet.
                 switch(this.call) {
                     case "private":
@@ -87,6 +90,7 @@ public class VoipSender implements Runnable {
                         socket.send(gpack);
                         break;
                 }
+
             }
         }
         catch (LineUnavailableException lu) {
