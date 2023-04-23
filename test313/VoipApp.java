@@ -12,8 +12,8 @@ public class VoipApp {
     public VoipReceiver receiver;
     public VoipRunner runner;
 
-    public VoipApp(String receiver,String myAddress,int port,String role,String call,String netIf) {
-        this.receiver = new VoipReceiver(port,call,myAddress,netIf);
+    public VoipApp(String receiver,String myAddress,int port,String role,String call) {
+        this.receiver = new VoipReceiver(port,call,myAddress);
         if (call.equals("group")) {
             this.sender = new VoipSender("228.0.0.0",myAddress,port,call);
         }
@@ -68,10 +68,6 @@ public class VoipApp {
         int port       = Integer.parseInt(args[2]);
         String role    = args[3];
         String call    = args[4];
-        String netIf   = args[5];
-        if (netIf.equals("default")) {
-            netIf = "zt44xfkmyl";
-        }
-        VoipApp app = new  VoipApp(receiverAddr,myAddress,port,role,call,netIf);       
+        VoipApp app = new  VoipApp(receiverAddr,myAddress,port,role,call);       
     }
 }
