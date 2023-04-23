@@ -13,15 +13,17 @@ public class VoipSender implements Runnable {
     private DatagramSocket socket;
     private AudioFormat format;
     private InetAddress rcvAddr;
+    private InetAddress myAddr;
     private InetSocketAddress groupAddr;
     private int destPort;
     private Thread t;
     public boolean inCall;
     public String call;
 
-    public VoipSender(String receiverAddress,int port,String call) {
+    public VoipSender(String receiverAddress,String myAddress,int port,String call) {
         try {
             //the datagram socket.
+            this.myAddr = InetAddress.getByName(myAddress);
             socket = new DatagramSocket();
             this.call = call;
             this.rcvAddr = InetAddress.getByName(receiverAddress);
@@ -85,6 +87,7 @@ public class VoipSender implements Runnable {
                         break;
                     case "group":
                         DatagramPacket gpack = new DatagramPacket(buffer, buffer.length,this.rcvAddr,destPort);
+                        gpack.setAddress(this.myAddr);
                         socket.send(gpack);
                         break;
                 }

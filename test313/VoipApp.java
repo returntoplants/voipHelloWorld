@@ -15,10 +15,10 @@ public class VoipApp {
     public VoipApp(String receiver,String myAddress,int port,String role,String call) {
         this.receiver = new VoipReceiver(port,call,myAddress);
         if (call.equals("group")) {
-            this.sender = new VoipSender("228.0.0.0",port,call);
+            this.sender = new VoipSender("228.0.0.0",myAddress,port,call);
         }
         else {
-            this.sender = new VoipSender(receiver,port,call);
+            this.sender = new VoipSender(receiver,myAddress,port,call);
         }
 
         runner = new VoipRunner(sender,this.receiver,role);
