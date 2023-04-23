@@ -15,7 +15,7 @@ public class VoipReceiver implements Runnable {
     private AudioFormat format;
     private String myAddress;
     public VoipReceiver(int port,String call,String myAddress) {
-        String multicastAddr = "224.0.0.0/4";
+        String multicastAddr = "228.0.0.0";
         try {
             format = new AudioFormat(8000.0f,16,1,true,true);
 
@@ -26,14 +26,16 @@ public class VoipReceiver implements Runnable {
                 case "group":
                     socket = new DatagramSocket();
                     socket.setOption(StandardSocketOptions.IP_MULTICAST_LOOP,true);
-
+                    System.out.println("created datagram socket.");
                     mSocket = new MulticastSocket(port);
                     InetAddress multi = InetAddress.getByName(multicastAddr);
                     InetSocketAddress inMulti = new InetSocketAddress(multi,port);
                     mSocket.setReuseAddress(true);
 
+                    System.out.println("multicast socket created.");
                     NetworkInterface nintf = NetworkInterface.getByName("zt44xfkmyl");
                     mSocket.joinGroup(inMulti,nintf); 
+                    System.out.println("group joined.");
                     break;
             }
 

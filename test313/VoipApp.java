@@ -15,7 +15,7 @@ public class VoipApp {
     public VoipApp(String receiver,String myAddress,int port,String role,String call) {
         this.receiver = new VoipReceiver(port,call,myAddress);
         if (call.equals("group")) {
-            this.sender = new VoipSender("224.0.0.0/4",port);
+            this.sender = new VoipSender("228.0.0.0",port);
         }
         else {
             this.sender = new VoipSender(receiver,port);
