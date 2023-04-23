@@ -78,7 +78,6 @@ public class VoipSender implements Runnable {
                 microphone.read(buffer,0,buffer.length);
                 double std = rateOfChange(buffer);
 
-                if (std <= 0.35) continue;
                 // the datagram packet.
                 switch(this.call) {
                     case "private":
