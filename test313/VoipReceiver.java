@@ -48,6 +48,25 @@ public class VoipReceiver implements Runnable {
         }
     }
 
+
+    public double rateOfChange(byte[] array) {
+        double[] audioData = new double[array.length/2];
+        for (int i = 0,j = 0; i< audioData.length;i += 2,j++) {
+            int sample = (array[i+1] << 8) | (array[i] & 0xff);
+            audioData[j] = sample / 32768.0;
+        }
+
+        double rms = 0.0;
+        for (double sample: audioData) {
+            rms += sample * sample;
+        }
+
+        rms /= audioData.length;
+        rms = Math.sqrt(rms);
+        System.out.println("standard deviation of sound: "+rms);
+        return rms;
+    } 
+
     public void receive() throws IOException {
         try {
             SourceDataLine speakers = AudioSystem.getSourceDataLine(format);
@@ -55,7 +74,7 @@ public class VoipReceiver implements Runnable {
             speakers.open(format);
             speakers.start();
 
-            byte[] buffer = new byte[256];
+            byte[] buffer = new byte[1024];
 
             // Continuously receive audio data over UDP and play it back on the
             // speakers.
