@@ -95,7 +95,7 @@ public class VoipReceiver implements Runnable {
                 }
                 //socket.receive(packet);
                 double rateMs = this.rateOfChange(packet.getData());
-                if (rate >= 0.3) { 
+                if (rateMs >= 0.3) { 
                     speakers.write(packet.getData(),0,packet.getLength());
                 }
                 
