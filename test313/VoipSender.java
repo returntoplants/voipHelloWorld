@@ -25,6 +25,7 @@ public class VoipSender implements Runnable {
             //the datagram socket.
             this.myAddr = InetAddress.getByName(myAddress);
             socket = new DatagramSocket();
+            socket.setOption(StandardSocketOptions.IP_MULTICAST_LOOP,false);
             this.call = call;
             this.rcvAddr = InetAddress.getByName(receiverAddress);
             switch(call) {    
@@ -86,8 +87,7 @@ public class VoipSender implements Runnable {
                         socket.send(packet);
                         break;
                     case "group":
-                        DatagramPacket gpack = new DatagramPacket(buffer, buffer.length,this.rcvAddr,destPort);
-                        gpack.setAddress(this.myAddr);
+                        DatagramPacket gpack = new DatagramPacket(buffer, buffer.length,this.groupAddr);
                         socket.send(gpack);
                         break;
                 }
