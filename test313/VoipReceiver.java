@@ -55,15 +55,15 @@ public class VoipReceiver implements Runnable {
             speakers.open(format);
             speakers.start();
 
-            byte[] buffer = new byte[8*1024];
+            byte[] buffer = new byte[1024];
 
             // Continuously receive audio data over UDP and play it back on the
             // speakers.
             while (true) {
                 DatagramPacket packet = new DatagramPacket(buffer,buffer.length);
                 InetAddress source = packet.getAddress();
-                if (source == null || source.equals(InetAddress.getByName(this.myAddress))) {
-                    continue;
+                if (source != null) {
+                    System.out.println("source: "+ source.getHostAddress());
                 }
                 switch(this.call) {
                     case "group":

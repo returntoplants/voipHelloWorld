@@ -42,6 +42,22 @@ public class VoipSender implements Runnable {
         }
     }
 
+    public void rateOfChange(byte[] array) {
+        double[] audioData = new double[array.length/2];
+        for (int i =0,j = 0; i < audioData.length;i += 2,j++) {
+            int sample = (array[i+1]<<8) | (array[i]  & 0xff);
+            audioData[j] = sample / 32768.0;
+        }
+
+        double rms = 0.0;
+        for (double sample: audioData) {
+            rms += sample * sample;
+        }
+        rms /= audioData.length;
+        rms = Math.sqrt(rms);
+        System.out.println("standard deviation of sound: "+rms);
+    }
+
     public void call() throws IOException {
         try {
             System.out.println("awe");
@@ -57,9 +73,9 @@ public class VoipSender implements Runnable {
             // Continuouslty read audio data from the microphone and send it over UDP
             while (true) {
                 //create a buffer to hold the audio data.
-                byte[] buffer = new byte[8*1024];
+                byte[] buffer = new byte[1024];
                 microphone.read(buffer,0,buffer.length);
-
+                rateOfChange(buffer);
                 // the datagram packet.
                 switch(this.call) {
                     case "private":
