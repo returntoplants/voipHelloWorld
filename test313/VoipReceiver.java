@@ -96,9 +96,7 @@ public class VoipReceiver implements Runnable {
                 //socket.receive(packet);
                 double rateMs = this.rateOfChange(packet.getData());
          
-                speakers.write(packet.getData(),0,packet.getLength());
-                speakers.drain();                
-                
+                speakers.write(packet.getData(),0,packet.getLength());                
             }
         }
         catch (LineUnavailableException lu) {
