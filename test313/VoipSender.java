@@ -29,7 +29,7 @@ public class VoipSender implements Runnable {
             //the datagram socket.
             this.myAddr = InetAddress.getByName(myAddress);
             socket = new DatagramSocket();
-            //socket.setOption(StandardSocketOptions.IP_MULTICAST_LOOP,false);
+            socket.setOption(StandardSocketOptions.IP_MULTICAST_LOOP,false);
             this.call = call;
             this.rcvAddr = InetAddress.getByName(receiverAddress);
             //this.microphone = new VoipMicrophone();
