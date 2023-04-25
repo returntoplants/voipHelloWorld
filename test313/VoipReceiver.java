@@ -93,7 +93,7 @@ public class VoipReceiver implements Runnable {
                         break;
                 }
                 //socket.receive(packet);
-                double rateMs = this.rateOfChange(packet.getData());
+                //double rateMs = this.rateOfChange(packet.getData());
          
                 //put the data onto the audio queue.
                 this.speakers.audioQueue.put(packet.getData());

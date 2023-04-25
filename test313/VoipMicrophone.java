@@ -37,7 +37,7 @@ public class VoipMicrophone implements Runnable {
                 //double freq = this.getFrequency(buffer,16,8000.0f);
                 //System.out.println(" current frequency: "+freq);
                 //if (freq > -1) {
-                    this.audioQueue.put(buffer);
+                this.audioQueue.put(buffer);
                 //}
             }
         }
