@@ -154,8 +154,8 @@ public class Microphone implements Runnable {
 
         for (int i = 0;i < numSamples; i++ ) {
             frequencies[i] = i / (sampleInterval * numSamples);
-            int trum = Math.pow(audioSpectrum[numSamples - i - 1],2);
-            int spec= Math.pow(audioSpectrum[i],2);
+            double trum = Math.pow(audioSpectrum[numSamples - i - 1],2);
+            double spec= Math.pow(audioSpectrum[i],2);
             magnitudes[i]  = Math.sqrt(spec+trum);      
         }
 
