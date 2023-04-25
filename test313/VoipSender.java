@@ -23,14 +23,16 @@ public class VoipSender implements Runnable {
     private Thread t;
     public boolean inCall;
     public String call;
+    public MulticastSocket mSocket; 
 
-    public VoipSender(String receiverAddress,String myAddress,int port,String call) {
+    public VoipSender(MulticastSocket mSocket,String receiverAddress,String myAddress,int port,String call) {
         try {
             //the datagram socket.
             this.myAddr = InetAddress.getByName(myAddress);
-            socket = new DatagramSocket();
-            socket.setOption(StandardSocketOptions.IP_MULTICAST_LOOP,false);
-            this.call = call;
+            this.mSocket = mSocket;
+            //socket = new DatagramSocket();
+            //socket.setOption(StandardSocketOptions.IP_MULTICAST_LOOP,false);
+              this.call = call;
             this.rcvAddr = InetAddress.getByName(receiverAddress);
             //this.microphone = new VoipMicrophone();
             switch(call) {    
@@ -76,11 +78,11 @@ public class VoipSender implements Runnable {
                 switch(this.call) {
                     case "private":
                         DatagramPacket packet = new DatagramPacket(buffer,buffer.length,this.rcvAddr,destPort);
-                        socket.send(packet);
+                        mSocket.send(packet);
                         break;
                     case "group":
                         DatagramPacket gpack = new DatagramPacket(buffer, buffer.length,this.groupAddr);
-                        socket.send(gpack);
+                        mSocket.send(gpack);
                         break;
                 }
             //}

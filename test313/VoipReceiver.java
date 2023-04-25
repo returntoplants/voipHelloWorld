@@ -18,13 +18,15 @@ public class VoipReceiver implements Runnable {
     private VoipSpeaker speakers;
     private SourceDataLine speak;
 
-    public VoipReceiver(int port,String call,String myAddress) {
+    public VoipReceiver(MulticastSocket mSocket,int port,String call,String myAddress) {
         String multicastAddr = "228.0.0.0";
         try {
             format = new AudioFormat(8000.0f,16,1,true,true);
             this.myAddress = myAddress;
             this.call = call;
             this.speakers = new VoipSpeaker();
+            this.mSocket = mSocket;
+
             try {
                 this.speak = AudioSystem.getSourceDataLine(format);
             }
@@ -37,16 +39,6 @@ public class VoipReceiver implements Runnable {
                     break;
                 case "group":
                     System.out.println("created datagram socket.");
-                    mSocket = new MulticastSocket(port);
-                    mSocket.setOption(StandardSocketOptions.IP_MULTICAST_LOOP,false);
-                    InetAddress multi = InetAddress.getByName(multicastAddr);
-                    InetSocketAddress inMulti = new InetSocketAddress(multi,0);
-                    this.group = new InetSocketAddress(multi,port);
-                    mSocket.setReuseAddress(true);
-                    System.out.println("multicast socket created.");
-                    NetworkInterface nintf = NetworkInterface.getByName("zt44xfkmyl");
-                    mSocket.joinGroup(inMulti,nintf); 
-                    System.out.println("group joined.");
                     break;
             }
 
@@ -97,7 +89,7 @@ public class VoipReceiver implements Runnable {
                         mSocket.receive(packet);
                         break;
                     default:
-                        socket.receive(packet);
+                        mSocket.receive(packet);
                         break;
                 }
                 //socket.receive(packet);

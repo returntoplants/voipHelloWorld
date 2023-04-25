@@ -13,16 +13,32 @@ public class VoipApp {
     public VoipRunner runner;
 
     public VoipApp(String receiver,String myAddress,int port,String role,String call) {
-        this.receiver = new VoipReceiver(port,call,myAddress);
+        String multicastAddr = "228.0.0.0";
+        try {
+        MulticastSocket mSocket = new MulticastSocket(port);
+        mSocket.setOption(StandardSocketOptions.IP_MULTICAST_LOOP,false);
+        InetAddress multi = InetAddress.getByName(multicastAddr);
+        InetSocketAddress inMulti = new InetSocketAddress(multi,0);
+        mSocket.setReuseAddress(true);
+        System.out.println("multicast socket created.");
+        NetworkInterface nintf = NetworkInterface.getByName("zt44xfkmyl");
+        mSocket.joinGroup(inMulti,nintf); 
+        System.out.println("group joined.");
+        this.receiver = new VoipReceiver(mSocket,port,call,myAddress);
         if (call.equals("group")) {
-            this.sender = new VoipSender("228.0.0.0",myAddress,port,call);
+            this.sender = new VoipSender(mSocket,"228.0.0.0",myAddress,port,call);
         }
         else {
-            this.sender = new VoipSender(receiver,myAddress,port,call);
+            this.sender = new VoipSender(mSocket,receiver,myAddress,port,call);
         }
-
         runner = new VoipRunner(sender,this.receiver,role);
         runner.start();
+        }
+        catch(IOException io) {
+            System.out.println("io exception: "+io);
+            io.printStackTrace();
+        }
+
     }
    
     private class VoipRunner implements Runnable {
