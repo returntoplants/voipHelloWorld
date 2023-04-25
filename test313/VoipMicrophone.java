@@ -96,7 +96,7 @@ public class VoipMicrophone implements Runnable {
                 j -= m;
                 m /= 2;
             }
-            j = m;
+            j += m;
         }
     }
 
@@ -117,7 +117,7 @@ public class VoipMicrophone implements Runnable {
                 for (int k = j; k < n; k += s) {
                     int l = k + s/2;
                     double tReal = wReal*xReal[l] - wImag*xImag[l];
-                    double tImag = wImag*xImag[l] + wImag*xReal[l];
+                    double tImag = wReal*xImag[l] + wImag*xReal[l];
                     xReal[l] = xReal[k] - tReal;
                     xImag[l] = xImag[k] - tImag;
 
