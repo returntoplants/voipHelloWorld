@@ -34,11 +34,11 @@ public class VoipMicrophone implements Runnable {
                 byte[] buffer = new byte[CHUNK_SIZE];
                 int count = microphone.read(buffer,0,CHUNK_SIZE);
             
-                double freq = this.getFrequency(buffer,16,8000.0f);
+                //double freq = this.getFrequency(buffer,16,8000.0f);
                 System.out.println(" current frequency: "+freq);
-                if (freq > -1) {
+                //if (freq > -1) {
                     this.audioQueue.put(buffer);
-                }
+                //}
             }
         }
         catch(LineUnavailableException lu) {
