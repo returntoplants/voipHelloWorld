@@ -15,14 +15,14 @@ public class VoipReceiver implements Runnable {
     private AudioFormat format;
     private String myAddress;
     private InetSocketAddress group;
-    private Speaker speakers;
+    private VoipSpeaker speakers;
     public VoipReceiver(int port,String call,String myAddress) {
         String multicastAddr = "228.0.0.0";
         try {
             format = new AudioFormat(8000.0f,16,1,true,true);
             this.myAddress = myAddress;
             this.call = call;
-            this.speakers = new Speaker();
+            this.speakers = new VoipSpeaker();
             switch(call) {
                 case "private":
                     socket = new DatagramSocket(port);

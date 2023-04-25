@@ -15,7 +15,7 @@ public class VoipSender implements Runnable {
     private InetAddress rcvAddr;
     private InetAddress myAddr;
     private InetSocketAddress groupAddr;
-    private Microphone microphone;
+    private VoipMicrophone microphone;
     private int destPort;
     private Thread t;
     public boolean inCall;
@@ -26,10 +26,10 @@ public class VoipSender implements Runnable {
             //the datagram socket.
             this.myAddr = InetAddress.getByName(myAddress);
             socket = new DatagramSocket();
-            socket.setOption(StandardSocketOptions.IP_MULTICAST_LOOP,false);
+            //socket.setOption(StandardSocketOptions.IP_MULTICAST_LOOP,false);
             this.call = call;
             this.rcvAddr = InetAddress.getByName(receiverAddress);
-            this.microphone = new Microphone();
+            this.microphone = new VoipMicrophone();
             switch(call) {    
                 case "group":
                     this.groupAddr = new InetSocketAddress(this.rcvAddr,port);
