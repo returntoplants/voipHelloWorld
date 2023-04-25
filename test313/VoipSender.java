@@ -71,8 +71,8 @@ public class VoipSender implements Runnable {
                 byte[] buffer = new byte[CHUNK_SIZE];
                 int count = this.mphone.read(buffer,0,CHUNK_SIZE);
                 // the datagram packet.
-                double frequency = this.getFrequency(buffer, 16, 8000.0f);
-                System.out.println("current frequency: "+frequency);
+                //double frequency = this.getFrequency(buffer, 16, 8000.0f);
+                //System.out.println("current frequency: "+frequency);
                 switch(this.call) {
                     case "private":
                         DatagramPacket packet = new DatagramPacket(buffer,buffer.length,this.rcvAddr,destPort);
