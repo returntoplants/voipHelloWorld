@@ -35,7 +35,7 @@ public class VoipMicrophone implements Runnable {
                 int count = microphone.read(buffer,0,CHUNK_SIZE);
             
                 //double freq = this.getFrequency(buffer,16,8000.0f);
-                System.out.println(" current frequency: "+freq);
+                //System.out.println(" current frequency: "+freq);
                 //if (freq > -1) {
                     this.audioQueue.put(buffer);
                 //}
