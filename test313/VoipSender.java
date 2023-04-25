@@ -16,6 +16,7 @@ public class VoipSender implements Runnable {
     private InetAddress myAddr;
     private InetSocketAddress groupAddr;
     private VoipMicrophone microphone;
+    private TargetDataLine mphone;
     private int destPort;
     private Thread t;
     public boolean inCall;
@@ -29,7 +30,7 @@ public class VoipSender implements Runnable {
             socket.setOption(StandardSocketOptions.IP_MULTICAST_LOOP,false);
             this.call = call;
             this.rcvAddr = InetAddress.getByName(receiverAddress);
-            this.microphone = new VoipMicrophone();
+            //this.microphone = new VoipMicrophone();
             switch(call) {    
                 case "group":
                     this.groupAddr = new InetSocketAddress(this.rcvAddr,port);
@@ -37,7 +38,8 @@ public class VoipSender implements Runnable {
             }
             //the audio format for the audio data.
             format = new AudioFormat(8000.0f, 16, 1, true, true);
-            
+             
+            this.mphone = AudioSystem.getTargetDataLine(format);
             destPort = port;  // the port.
             inCall   = false;
         }
@@ -45,19 +47,27 @@ public class VoipSender implements Runnable {
             System.out.println(io);
             io.printStackTrace();
         }
+        catch(LineUnavailableException lu) {
+            System.out.println("line unavailable exception: "+lu);
+        }
     }
 
     public void call() throws IOException {
         System.out.println("awe");
         this.inCall = true;
+        try {
         // the microphone input stream.
-        this.microphone.start();
+        this.mphone.open(format);
+        this.mphone.start();
 
+        int CHUNK_SIZE = 1024;
         // Continuouslty read audio data from the microphone and send it over UDP
         while (true) {
             //create a buffer to hold the audio data.
-            try {
-                byte[] buffer = this.microphone.audioQueue.take();
+            //try {
+                //byte[] buffer = this.microphone.audioQueue.take();
+                byte[] buffer = new byte[CHUNK_SIZE];
+                int count = this.mphone.read(buffer,0,CHUNK_SIZE);
                 // the datagram packet.
                 switch(this.call) {
                     case "private":
@@ -69,10 +79,14 @@ public class VoipSender implements Runnable {
                         socket.send(gpack);
                         break;
                 }
-            }
-            catch(InterruptedException  e) {
-                System.out.println("interrupt exception.");
-            }
+            //}
+            //catch(InterruptedException  e) {
+            //    System.out.println("interrupt exception.");
+            //}
+        }
+        }
+        catch(LineUnavailableException lu) {
+            System.out.println("line unavailable exception "+lu);
         }
         
     }

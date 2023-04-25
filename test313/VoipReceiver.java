@@ -16,6 +16,8 @@ public class VoipReceiver implements Runnable {
     private String myAddress;
     private InetSocketAddress group;
     private VoipSpeaker speakers;
+    private SourceDataLine speak;
+
     public VoipReceiver(int port,String call,String myAddress) {
         String multicastAddr = "228.0.0.0";
         try {
@@ -23,6 +25,12 @@ public class VoipReceiver implements Runnable {
             this.myAddress = myAddress;
             this.call = call;
             this.speakers = new VoipSpeaker();
+            try {
+                this.speak = AudioSystem.getSourceDataLine(format);
+            }
+            catch(LineUnavailableException lu) {
+                System.out.println("interrupted exception error: "+lu);
+            }
             switch(call) {
                 case "private":
                     socket = new DatagramSocket(port);
@@ -35,7 +43,6 @@ public class VoipReceiver implements Runnable {
                     InetSocketAddress inMulti = new InetSocketAddress(multi,0);
                     this.group = new InetSocketAddress(multi,port);
                     mSocket.setReuseAddress(true);
-
                     System.out.println("multicast socket created.");
                     NetworkInterface nintf = NetworkInterface.getByName("zt44xfkmyl");
                     mSocket.joinGroup(inMulti,nintf); 
@@ -73,8 +80,9 @@ public class VoipReceiver implements Runnable {
     public void receive() throws IOException {
         try {
             
-            this.speakers.start();
-
+            //this.speakers.start();
+            this.speak.open(this.format);
+            this.speak.start();
             byte[] buffer = new byte[1024];
             // Continuously receive audio data over UDP and play it back on the
             // speakers.
@@ -96,11 +104,11 @@ public class VoipReceiver implements Runnable {
                 //double rateMs = this.rateOfChange(packet.getData());
          
                 //put the data onto the audio queue.
-                this.speakers.audioQueue.put(packet.getData());
-
+                //this.speakers.audioQueue.put(packet.getData());
+                this.speak.write(packet.getData(),0,packet.getData().length);    
             }
         }
-        catch (InterruptedException lu) {
+        catch (LineUnavailableException lu) {
             System.out.println(lu);
             lu.printStackTrace();
         }
