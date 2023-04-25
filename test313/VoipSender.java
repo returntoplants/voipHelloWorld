@@ -15,6 +15,7 @@ public class VoipSender implements Runnable {
     private InetAddress rcvAddr;
     private InetAddress myAddr;
     private InetSocketAddress groupAddr;
+    private Microphone microphone;
     private int destPort;
     private Thread t;
     public boolean inCall;
@@ -28,6 +29,7 @@ public class VoipSender implements Runnable {
             socket.setOption(StandardSocketOptions.IP_MULTICAST_LOOP,false);
             this.call = call;
             this.rcvAddr = InetAddress.getByName(receiverAddress);
+            this.microphone = new Microphone();
             switch(call) {    
                 case "group":
                     this.groupAddr = new InetSocketAddress(this.rcvAddr,port);
@@ -45,41 +47,17 @@ public class VoipSender implements Runnable {
         }
     }
 
-    public double rateOfChange(byte[] array) {
-        double[] audioData = new double[array.length/2];
-        for (int i =0,j = 0; i < audioData.length;i += 2,j++) {
-            int sample = (array[i+1]<<8) | (array[i]  & 0xff);
-            audioData[j] = sample / 32768.0;
-        }
-
-        double rms = 0.0;
-        for (double sample: audioData) {
-            rms += sample * sample;
-        }
-        rms /= audioData.length;
-        rms = Math.sqrt(rms);
-        return rms;
-    }
-
     public void call() throws IOException {
-        try {
-            System.out.println("awe");
-            this.inCall = true;
-            // the microphone input stream.
-            TargetDataLine microphone = AudioSystem.getTargetDataLine(format);
+        System.out.println("awe");
+        this.inCall = true;
+        // the microphone input stream.
+        this.microphone.start();
 
-            //the microphone.
-            microphone.open(format);
-            microphone.start();
-
-
-            // Continuouslty read audio data from the microphone and send it over UDP
-            while (true) {
-                //create a buffer to hold the audio data.
-                byte[] buffer = new byte[1024];
-                microphone.read(buffer,0,buffer.length);
-                double std = rateOfChange(buffer);
-
+        // Continuouslty read audio data from the microphone and send it over UDP
+        while (true) {
+            //create a buffer to hold the audio data.
+            try {
+                byte[] buffer = this.microphone.audioQueue.take();
                 // the datagram packet.
                 switch(this.call) {
                     case "private":
@@ -91,13 +69,12 @@ public class VoipSender implements Runnable {
                         socket.send(gpack);
                         break;
                 }
-
+            }
+            catch(InterruptedException  e) {
+                System.out.println("interrupt exception.");
             }
         }
-        catch (LineUnavailableException lu) {
-            System.out.println(lu);
-            lu.printStackTrace();
-        }
+        
     }
 
 

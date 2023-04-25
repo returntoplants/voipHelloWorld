@@ -15,12 +15,14 @@ public class VoipReceiver implements Runnable {
     private AudioFormat format;
     private String myAddress;
     private InetSocketAddress group;
+    private Speaker speakers;
     public VoipReceiver(int port,String call,String myAddress) {
         String multicastAddr = "228.0.0.0";
         try {
             format = new AudioFormat(8000.0f,16,1,true,true);
             this.myAddress = myAddress;
             this.call = call;
+            this.speakers = new Speaker();
             switch(call) {
                 case "private":
                     socket = new DatagramSocket(port);
@@ -70,13 +72,10 @@ public class VoipReceiver implements Runnable {
 
     public void receive() throws IOException {
         try {
-            SourceDataLine speakers = AudioSystem.getSourceDataLine(format);
-
-            speakers.open(format);
-            speakers.start();
+            
+            this.speakers.start();
 
             byte[] buffer = new byte[1024];
-
             // Continuously receive audio data over UDP and play it back on the
             // speakers.
             while (true) {
@@ -96,10 +95,12 @@ public class VoipReceiver implements Runnable {
                 //socket.receive(packet);
                 double rateMs = this.rateOfChange(packet.getData());
          
-                speakers.write(packet.getData(),0,packet.getLength());                
+                //put the data onto the audio queue.
+                this.speakers.audioQueue.put(packet.getData());
+
             }
         }
-        catch (LineUnavailableException lu) {
+        catch (InterruptedException lu) {
             System.out.println(lu);
             lu.printStackTrace();
         }
