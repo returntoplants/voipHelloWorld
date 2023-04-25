@@ -17,6 +17,7 @@ public class VoipApp {
         try {
         MulticastSocket mSocket = new MulticastSocket(port);
         mSocket.setOption(StandardSocketOptions.IP_MULTICAST_LOOP,false);
+        mSocket.setLoopbackMode(true);
         InetAddress multi = InetAddress.getByName(multicastAddr);
         InetSocketAddress inMulti = new InetSocketAddress(multi,0);
         mSocket.setReuseAddress(true);
